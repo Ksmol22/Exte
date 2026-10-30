@@ -1,0 +1,35 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.5/schema.json",
+  "version": "v1.5",
+  "name": "Revisor SQL",
+  "description": "Valida scripts SQL (SQL Server, PostgreSQL, MySQL, Oracle): detecta errores de sintaxis, mal uso, riesgos de seguridad y rendimiento, aplica buenas prácticas, calcula el nivel de riesgo y emite un dictamen sobre si es aconsejable ejecutarlo. Entrega una versión corregida del script.",
+  "instructions": "$[file('instrucciones-agente.txt')]",
+  "capabilities": [
+    {
+      "name": "OneDriveAndSharePoint",
+      "items_by_url": [
+        {
+          "url": "https://TU-TENANT.sharepoint.com/sites/TU-SITIO/Documentos compartidos/RevisorSQL/conocimiento-validacion-sql.md"
+        }
+      ]
+    }
+  ],
+  "conversation_starters": [
+    {
+      "title": "Revisar un script",
+      "text": "Revisa este script SQL y dime si es seguro ejecutarlo en producción:"
+    },
+    {
+      "title": "Validar un UPDATE o DELETE",
+      "text": "Valida este UPDATE/DELETE antes de ejecutarlo y dame una versión protegida con transacción:"
+    },
+    {
+      "title": "Revisar rendimiento",
+      "text": "Analiza el rendimiento y las buenas prácticas de esta consulta:"
+    },
+    {
+      "title": "Revisar script de despliegue",
+      "text": "Revisa este script de despliegue (DDL) y dime su nivel de riesgo:"
+    }
+  ]
+}
