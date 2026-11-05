@@ -42,14 +42,15 @@ chmod 750 /home/oracle/scripts/rman_21c.sh
 
 
 ---------------------------------------------------------------
--- Indica si la opción está INSTALADA (en EE casi siempre sale TRUE), no si está licenciada
-SELECT parameter, value FROM v$option WHERE parameter = 'Advanced Compression';
+-- Datos reales en todo el CDB (lo que el backup tendrá que leer)
+SELECT ROUND(SUM(bytes)/1024/1024/1024,1) gb_datos FROM cdb_segments;
 
--- Algoritmo configurado actualmente en RMAN
--- (en RMAN) SHOW COMPRESSION ALGORITHM;
+-- Archives generados por día (últimos 7 días)
+SELECT TRUNC(completion_time) dia,
+       ROUND(SUM(blocks*block_size)/1024/1024/1024,1) gb_archives
+FROM v$archived_log
+WHERE dest_id = 1 AND completion_time > SYSDATE-7
+GROUP BY TRUNC(completion_time) ORDER BY 1;
 
--- Si alguna vez se usaron niveles de pago (Oracle lo registra y aparece en auditorías)
-SELECT name, detected_usages, currently_used, last_usage_date
-FROM dba_feature_usage_statistics
-WHERE name LIKE 'Backup%Compression%'
-ORDER BY name;
+-- Tamaño actual de la FRA
+SHOW PARAMETER db_recovery_file_dest_size
