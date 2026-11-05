@@ -23,6 +23,7 @@
 #    0 5 * * 0     /home/oracle/scripts/rman_21c.sh ORCL VALIDATE
 #
 #  Errores: <LOG_BASE>/<SID>/ERRORES.log y syslog local (tag "rman_21c").
+#  Ejecutado a mano desde una terminal, tambien muestra todo en pantalla.
 #
 #  Notas:
 #   - Pensado para instancia unica (no RAC).
@@ -59,7 +60,7 @@ case "$MODO" in
 esac
 
 LOG_DIR="$LOG_BASE/$ORACLE_SID"
-mkdir -p "$LOG_DIR" || exit 1
+mkdir -p "$LOG_DIR" || { echo "ERROR: no se pudo crear $LOG_DIR" >&2; exit 1; }
 if [ "$MODO" = "CHECK" ]; then
   LOG="$LOG_DIR/check_fra.log"
 else
@@ -68,7 +69,21 @@ fi
 ERRLOG="$LOG_DIR/ERRORES.log"
 
 # --------------------------- Utilidades --------------------------------------
-log() { echo "$(date '+%Y-%m-%d %H:%M:%S') $*" >> "$LOG"; }
+# Si se ejecuta a mano (terminal), todo se muestra tambien en pantalla.
+INTERACTIVO=0
+[ -t 1 ] && INTERACTIVO=1
+
+log() {
+  local l
+  l="$(date '+%Y-%m-%d %H:%M:%S') $*"
+  echo "$l" >> "$LOG"
+  if [ "$INTERACTIVO" -eq 1 ]; then echo "$l"; fi
+}
+
+# Copia stdin al log (y a pantalla si es interactivo)
+volcar() {
+  if [ "$INTERACTIVO" -eq 1 ]; then tee -a "$LOG"; else cat >> "$LOG"; fi
+}
 
 error() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') [$ORACLE_SID][$MODO] $1 -> $LOG" >> "$ERRLOG"
@@ -93,7 +108,7 @@ run_rman() {
   tmp=$(mktemp "$LOG_DIR/.rman_XXXXXX")
   { echo "SET ECHO ON;"; cat; echo "EXIT;"; } | rman target / > "$tmp" 2>&1
   rc=${PIPESTATUS[1]}
-  cat "$tmp" >> "$LOG"
+  volcar < "$tmp"
   if [ "$rc" -ne 0 ] || grep -q "RMAN-00569" "$tmp"; then
     rm -f "$tmp"; return 1
   fi
@@ -325,7 +340,7 @@ EOF
 }
 
 modo_estado() {
-  sql >> "$LOG" <<'EOF'
+  sql <<'EOF' | volcar
 set heading on pagesize 100 linesize 200
 col name format a40
 prompt
@@ -390,5 +405,4 @@ fi
 log "===== Fin $MODO RC=$RC ====="
 
 depurar_logs
-if [ "$MODO" = "SETUP" ] || [ "$MODO" = "ESTADO" ]; then cat "$LOG"; fi
 exit $RC
