@@ -21,3 +21,17 @@ sed -i 's/\r$//' /home/oracle/scripts/rman_21c.sh
 file /home/oracle/scripts/rman_21c.sh
 
 /home/oracle/scripts/rman_21c.sh ORCL SETUP
+
+
+------------------------------------------------------------
+
+cat /home/oracle/rman_logs/ORCL/ERRORES.log
+
+grep -v '^#' /etc/oratab        # SID y ORACLE_HOME registrados
+ps -ef | grep pmon | grep -v grep   # la instancia activa aparece como ora_pmon_<SID>
+
+
+# después de subirla con el navegador SFTP de MobaXterm:
+sed -i 's/\r$//' /home/oracle/scripts/rman_21c.sh   # por si acaso
+chmod 750 /home/oracle/scripts/rman_21c.sh
+/home/oracle/scripts/rman_21c.sh <SID_REAL> SETUP
