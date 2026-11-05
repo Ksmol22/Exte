@@ -35,3 +35,21 @@ ps -ef | grep pmon | grep -v grep   # la instancia activa aparece como ora_pmon_
 sed -i 's/\r$//' /home/oracle/scripts/rman_21c.sh   # por si acaso
 chmod 750 /home/oracle/scripts/rman_21c.sh
 /home/oracle/scripts/rman_21c.sh <SID_REAL> SETUP
+
+
+
+
+
+
+---------------------------------------------------------------
+-- Indica si la opción está INSTALADA (en EE casi siempre sale TRUE), no si está licenciada
+SELECT parameter, value FROM v$option WHERE parameter = 'Advanced Compression';
+
+-- Algoritmo configurado actualmente en RMAN
+-- (en RMAN) SHOW COMPRESSION ALGORITHM;
+
+-- Si alguna vez se usaron niveles de pago (Oracle lo registra y aparece en auditorías)
+SELECT name, detected_usages, currently_used, last_usage_date
+FROM dba_feature_usage_statistics
+WHERE name LIKE 'Backup%Compression%'
+ORDER BY name;
