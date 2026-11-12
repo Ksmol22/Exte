@@ -1,0 +1,23 @@
+-- 1. Conéctate a la base de datos objetivo y otorga privilegios generales sobre la BD
+GRANT ALL PRIVILEGES ON DATABASE nombre_base_de_datos TO nombre_usuario;
+
+-- 2. Conéctate específicamente a la base de datos y ejecuta los siguientes comandos:
+-- Otorgar permisos sobre el esquema público (o el esquema que corresponda)
+GRANT ALL PRIVILEGES ON SCHEMA public TO nombre_usuario;
+GRANT USAGE ON SCHEMA public TO nombre_usuario;
+
+-- 3. Otorgar permisos sobre todas las tablas existentes en el esquema
+GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON ALL TABLES IN SCHEMA public TO nombre_usuario;
+
+-- 4. Otorgar permisos sobre todas las secuencias existentes (necesario para campos SERIAL/IDENTITY)
+GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO nombre_usuario;
+
+-- 5. Otorgar permisos sobre todas las funciones y procedimientos existentes
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO nombre_usuario;
+GRANT EXECUTE ON ALL PROCEDURES IN SCHEMA public TO nombre_usuario;
+
+-- 6. (Opcional pero recomendado) Configurar privilegios por defecto para tablas, secuencias y funciones futuras
+-- Esto asegura que cualquier objeto que se cree en el futuro también tenga los permisos automáticamente.
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON TABLES TO nombre_usuario;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO nombre_usuario;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO nombre_usuario;
